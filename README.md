@@ -18,8 +18,9 @@ Windows 任务栏歌词工具。它通过 SMTC 识别当前播放歌曲，并从
 ## 已支持播放器
 - QQ音乐
 - 网易云音乐（建议安装 [inflink-rs](https://github.com/apoint123/inflink-rs) 插件，以获得更完整的 SMTC 元数据）
-- 酷狗音乐
+- 酷狗音乐（SMTC信息不完整无法滚动歌词，可以尝试支持较好的第三方酷狗播放器）
 - Spotify
+- 所有支持SMTC协议的播放器
 
 ## 歌词检索
 TaskbarLyrics 会优先使用当前播放器对应的歌词源；如果短时间内没有取得有效歌词，再按配置启用跨源检索。跨源结果会经过标题、歌手、时长相似度校验，并叠加歌词源质量权重后选择最终结果。
@@ -34,7 +35,7 @@ TaskbarLyrics 会优先使用当前播放器对应的歌词源；如果短时间
 
 ## 安装
 ### 方式一：Release 下载
-在 [Releases](../../releases) 下载最新版本压缩包，完整解压后运行 `TaskbarLyrics.App.exe`。
+在 [Releases](../../releases) 下载最新版本压缩包，完整解压后运行 `TaskbarLyrics.exe`。
 
 请不要只单独复制或运行 exe，发布包中的 `Assets`、`Web` 等目录也是运行所需文件。
 
