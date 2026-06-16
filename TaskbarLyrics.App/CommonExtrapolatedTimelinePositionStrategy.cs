@@ -2,8 +2,6 @@ namespace TaskbarLyrics.App;
 
 public sealed class CommonExtrapolatedTimelinePositionStrategy : ITimelinePositionStrategy
 {
-    private static readonly TimeSpan MaxExtrapolationAge = TimeSpan.FromSeconds(8);
-
     public string Name => "CommonExtrapolated";
 
     public bool CanApply(SmtcTimelineDiagnostics diagnostics)
@@ -29,8 +27,7 @@ public sealed class CommonExtrapolatedTimelinePositionStrategy : ITimelinePositi
             return diagnostics.RawPosition;
         }
 
-        if (diagnostics.LastUpdateAge < TimeSpan.Zero ||
-            diagnostics.LastUpdateAge > MaxExtrapolationAge)
+        if (diagnostics.ExtrapolatedPosition < TimeSpan.Zero)
         {
             return diagnostics.RawPosition;
         }

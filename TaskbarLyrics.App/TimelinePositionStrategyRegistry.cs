@@ -30,7 +30,7 @@ public sealed class TimelinePositionStrategyRegistry
 
     public static TimelinePositionStrategyRegistry CreateDefault()
     {
-        var fallback = new DefaultRawTimelinePositionStrategy();
+        var fallback = new DefaultExtrapolatedTimelinePositionStrategy();
         return new TimelinePositionStrategyRegistry(
             new ITimelinePositionStrategy[]
             {
