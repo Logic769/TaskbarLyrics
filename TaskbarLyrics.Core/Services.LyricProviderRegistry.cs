@@ -66,6 +66,15 @@ public sealed class LyricProviderRegistry : ILyricProviderRegistry
                 });
         }
 
+        // 本地歌词优先：在配置的音乐目录中搜索 .lrc 文件
+        var localResult = await TryLocalLyricsAsync(overriddenTrack, cancellationToken);
+        if (localResult is not null)
+        {
+            stopwatch.Stop();
+            Log.Info($"本地歌词命中，优先采用。总耗时: {stopwatch.ElapsedMilliseconds} ms");
+            return localResult;
+        }
+
         if (LyricSourceRoutingPolicy.TryGetOfficialProvider(track.SourceApp, out var officialSource))
         {
             var officialProvider = FindProviders(officialSource).FirstOrDefault();
@@ -239,6 +248,30 @@ public sealed class LyricProviderRegistry : ILyricProviderRegistry
             Log.Error($"查询 SQLite 映射库失败: {ex.Message}");
             return new MappingResult(targetTitle, targetArtist, null, null);
         }
+    }
+
+    private async Task<List<LyricResolveResult>?> TryLocalLyricsAsync(
+        TrackInfo track,
+        CancellationToken cancellationToken)
+    {
+        var localProvider = FindProviders("Local").FirstOrDefault();
+        if (localProvider is null)
+        {
+            return null;
+        }
+
+        var result = await RunProviderAsync(
+            localProvider,
+            track,
+            TimeSpan.FromSeconds(10),
+            cancellationToken);
+
+        return result.Document is not null
+            ? BuildResults(new Dictionary<ILyricProvider, LyricDocument?>
+            {
+                [localProvider] = result.Document
+            })
+            : null;
     }
 
     private IEnumerable<ILyricProvider> FindProviders(string sourceApp)

@@ -56,6 +56,7 @@ function setState(nextState, fontList = fonts) {
   renderFonts();
   renderControls();
   renderOrder();
+  renderLocalFolders();
 }
 
 function renderFonts() {
@@ -176,6 +177,37 @@ function onOrderDragEnd(event) {
   draggedSource = null;
 }
 
+function renderLocalFolders() {
+  const container = document.getElementById("localMusicFolders");
+  if (!container || !state) return;
+
+  const folders = state.localMusicFolders ?? [];
+  container.innerHTML = "";
+
+  for (const folder of folders) {
+    const item = document.createElement("div");
+    item.className = "folder-item";
+    item.innerHTML = `<span class="folder-path">${escapeHtml(folder)}</span><button class="remove-folder" data-folder="${escapeHtml(folder)}" title="移除目录">✕</button>`;
+    item.querySelector(".remove-folder").addEventListener("click", () => {
+      removeLocalFolder(folder);
+    });
+    container.appendChild(item);
+  }
+}
+
+function removeLocalFolder(folder) {
+  if (!state) return;
+  state.localMusicFolders = (state.localMusicFolders ?? []).filter(f => f !== folder);
+  renderLocalFolders();
+  bridge.post({ type: "update", key: "localMusicFolders", value: state.localMusicFolders });
+}
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
@@ -242,6 +274,10 @@ function setupEvents() {
 
   document.getElementById("spectrumTuningButton")?.addEventListener("click", () => {
     bridge.post({ type: "openSpectrumTuning" });
+  });
+
+  document.getElementById("addMusicFolderButton")?.addEventListener("click", () => {
+    bridge.post({ type: "pickMusicFolder" });
   });
 
   document.getElementById("sidebarToggle")?.addEventListener("click", () => {

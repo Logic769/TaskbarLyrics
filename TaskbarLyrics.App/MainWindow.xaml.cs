@@ -158,10 +158,16 @@ public partial class MainWindow : Window
 
     private LyricSyncService BuildLyricSyncService(AppSettings? settings = null)
     {
-        var providers = new List<ILyricProvider>
+        var providers = new List<ILyricProvider>();
+
+        // 本地歌词源（优先级最高，最前面插入）
+        if (settings?.EnableLocalLyrics != false)
         {
-            new GenericSmtcLyricProvider()
-        };
+            providers.Add(new LocalLyricProvider(() =>
+                settings?.LocalMusicFolders ?? (IReadOnlyList<string>)Array.Empty<string>()));
+        }
+
+        providers.Add(new GenericSmtcLyricProvider());
 
         if (settings?.EnableNetease != false)
         {

@@ -156,6 +156,9 @@ public partial class SettingsWindow : Wpf.Ui.Controls.FluentWindow
             case "pickColor":
                 await PickForegroundColorAsync();
                 break;
+            case "pickMusicFolder":
+                await PickMusicFolderAsync();
+                break;
         }
     }
 
@@ -203,7 +206,10 @@ public partial class SettingsWindow : Wpf.Ui.Controls.FluentWindow
             HorizontalAnchor = _settings.HorizontalAnchor,
             XOffset = _settings.XOffset,
             YOffset = _settings.YOffset,
-            EnableSmtcTimelineMonitor = _settings.EnableSmtcTimelineMonitor
+            EnableSmtcTimelineMonitor = _settings.EnableSmtcTimelineMonitor,
+            EnableLocalLyrics = _settings.EnableLocalLyrics,
+            PreferLocalLyrics = _settings.PreferLocalLyrics,
+            LocalMusicFolders = _settings.LocalMusicFolders.ToList()
         };
     }
 
@@ -363,6 +369,22 @@ public partial class SettingsWindow : Wpf.Ui.Controls.FluentWindow
             case "enableSmtcTimelineMonitor":
                 _settings.EnableSmtcTimelineMonitor = ReadBool(element, _settings.EnableSmtcTimelineMonitor);
                 break;
+            case "enableLocalLyrics":
+                _settings.EnableLocalLyrics = ReadBool(element, _settings.EnableLocalLyrics);
+                break;
+            case "preferLocalLyrics":
+                _settings.PreferLocalLyrics = ReadBool(element, _settings.PreferLocalLyrics);
+                break;
+            case "localMusicFolders":
+                if (element.ValueKind == JsonValueKind.Array)
+                {
+                    _settings.LocalMusicFolders = element.EnumerateArray()
+                        .Select(x => x.GetString())
+                        .Where(x => !string.IsNullOrWhiteSpace(x))
+                        .Select(x => x!)
+                        .ToList();
+                }
+                break;
             case "fontSize":
                 _settings.FontSize = Math.Clamp(ReadDouble(element, _settings.FontSize), 10, 40);
                 break;
@@ -433,6 +455,39 @@ public partial class SettingsWindow : Wpf.Ui.Controls.FluentWindow
 
         _settings.ForegroundColor = $"#FF{dialog.Color.R:X2}{dialog.Color.G:X2}{dialog.Color.B:X2}";
         _settings.ForegroundColorMode = ForegroundColorMode.Custom;
+        SaveSettings();
+        await PushSettingsToWebAsync();
+    }
+
+    private async Task PickMusicFolderAsync()
+    {
+        using var dialog = new Forms.FolderBrowserDialog
+        {
+            Description = "选择存放音乐文件的目录",
+            ShowNewFolderButton = true
+        };
+
+        // Try to initialize with the first existing folder
+        var existingFolder = _settings.LocalMusicFolders
+            .FirstOrDefault(f => Directory.Exists(f));
+        if (existingFolder != null)
+        {
+            dialog.SelectedPath = existingFolder;
+        }
+
+        if (dialog.ShowDialog() != Forms.DialogResult.OK ||
+            string.IsNullOrWhiteSpace(dialog.SelectedPath))
+        {
+            return;
+        }
+
+        var newFolder = dialog.SelectedPath;
+        if (_settings.LocalMusicFolders.Contains(newFolder, StringComparer.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        _settings.LocalMusicFolders.Add(newFolder);
         SaveSettings();
         await PushSettingsToWebAsync();
     }
@@ -568,6 +623,9 @@ public partial class SettingsWindow : Wpf.Ui.Controls.FluentWindow
         target.XOffset = source.XOffset;
         target.YOffset = source.YOffset;
         target.EnableSmtcTimelineMonitor = source.EnableSmtcTimelineMonitor;
+        target.EnableLocalLyrics = source.EnableLocalLyrics;
+        target.PreferLocalLyrics = source.PreferLocalLyrics;
+        target.LocalMusicFolders = source.LocalMusicFolders.ToList();
     }
 
     private void CaptionDragArea_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -760,6 +818,9 @@ public partial class SettingsWindow : Wpf.Ui.Controls.FluentWindow
         public double XOffset { get; set; }
         public double YOffset { get; set; }
         public bool EnableSmtcTimelineMonitor { get; set; }
+        public bool EnableLocalLyrics { get; set; }
+        public bool PreferLocalLyrics { get; set; }
+        public List<string> LocalMusicFolders { get; set; } = new();
     }
 
     private sealed class FontOption

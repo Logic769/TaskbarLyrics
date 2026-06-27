@@ -56,11 +56,23 @@ public sealed class LyricSyncService : IDisposable
 
         if (_currentDocument == null || _currentDocument.Lines.Count == 0)
         {
+            if (_isUpdating)
+            {
+                // 仍在检索中，显示检索文字
+                return Task.FromResult(new LyricDisplayFrame(
+                    SearchingText,
+                    "",
+                    _currentTrack?.Title ?? "",
+                    0, -1));
+            }
+
+            // 检索完成但未找到歌词：回退到频谱模式
             return Task.FromResult(new LyricDisplayFrame(
-                _isUpdating ? SearchingText : NoLyricsText,
-                "",
-                _currentTrack?.Title ?? "",
-                0, -1));
+                string.Empty,
+                string.Empty,
+                _currentTrack?.Title ?? string.Empty,
+                0, -1,
+                IsPureMusic: true));
         }
 
         // Apply player-specific compensation

@@ -16,6 +16,7 @@
       <nav class="nav">
         <button class="nav-item active" data-target="players"><span>▷</span><b>播放器</b></button>
         <button class="nav-item" data-target="lyrics"><span>Aa</span><b>歌词</b></button>
+        <button class="nav-item" data-target="local-lyrics"><span>◈</span><b>本地歌词</b></button>
         <button class="nav-item" data-target="appearance"><span>◌</span><b>外观</b></button>
         <button class="nav-item" data-target="layout"><span>▦</span><b>布局</b></button>
         <button class="nav-item" data-target="debug"><span>♢</span><b>调试</b></button>
@@ -54,6 +55,23 @@
             <label class="row"><span><strong>纯音乐时显示频谱</strong><small>歌曲识别为纯音乐时，在歌词区域显示实时频谱。</small></span><input data-key="enablePureMusicSpectrum" type="checkbox"></label>
             <label class="row"><span><strong>显示背景</strong><small>为歌词窗口启用半透明背景。</small></span><input data-key="showBackground" type="checkbox"></label>
             <label class="row"><span><strong>显示边框</strong><small>为歌词窗口绘制边框，便于深浅背景上分辨。</small></span><input data-key="showBorder" type="checkbox"></label>
+          </div>
+        </section>
+
+        <section id="local-lyrics" class="card reveal">
+          <h2>本地歌词</h2>
+          <p class="section-desc">在本地音乐目录中直接搜索 .lrc 歌词文件，无需联网检索。</p>
+          <div class="rows">
+            <label class="row"><span><strong>启用本地歌词</strong><small>开启后在指定的音乐目录中搜索本地歌词文件。</small></span><input data-key="enableLocalLyrics" type="checkbox"></label>
+            <label class="row"><span><strong>优先本地歌词</strong><small>本地歌词命中时，跳过在线检索以加快响应。</small></span><input data-key="preferLocalLyrics" type="checkbox"></label>
+            <div class="form-row">
+              <strong>音乐目录</strong>
+              <div id="localMusicFolders" class="folder-list"></div>
+              <div class="folder-actions">
+                <button id="addMusicFolderButton" class="primary">添加目录</button>
+              </div>
+              <small>每个目录及其子目录将被递归搜索 .lrc 文件。</small>
+            </div>
           </div>
         </section>
 

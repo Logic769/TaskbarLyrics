@@ -1,4 +1,4 @@
-﻿namespace TaskbarLyrics.App;
+namespace TaskbarLyrics.App;
 
 public enum LyricsHorizontalAnchor
 {
@@ -77,10 +77,18 @@ public sealed class AppSettings
     // Debug only: show real-time SMTC timeline diagnostics window.
     public bool EnableSmtcTimelineMonitor { get; set; } = false;
 
+    // 本地歌词：在指定的音乐目录中直接搜索 .lrc 歌词文件
+    public bool EnableLocalLyrics { get; set; } = true;
+
+    public bool PreferLocalLyrics { get; set; } = true;
+
+    public List<string> LocalMusicFolders { get; set; } = new();
+
     public AppSettings Clone()
     {
         var cloned = (AppSettings)MemberwiseClone();
         cloned.SourceRecognitionOrder = SourceRecognitionOrder.ToList();
+        cloned.LocalMusicFolders = LocalMusicFolders.ToList();
         return cloned;
     }
 }

@@ -37,6 +37,9 @@ internal static class LyricSourceRoutingPolicy
 
     public static IReadOnlyList<IReadOnlyList<string>> BuildFallbackBatches(TrackInfo track)
     {
+        // Local source is handled separately in LyricProviderRegistry as a priority pre-check.
+        // Here we only build online fallback batches.
+
         if (TryGetOfficialProvider(track.SourceApp, out var officialProvider))
         {
             return new[]
